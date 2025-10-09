@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Supply Order</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.5; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { width: 100px; margin: 0 auto; }
+        .address { text-align: center; margin-bottom: 15px; font-weight: bold; }
+        .file-info { margin-bottom: 15px; }
+        .to-address { margin-bottom: 15px; }
+        .subject { margin-bottom: 15px; }
+        .content { margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .terms { margin-bottom: 30px; }
+        .signature { text-align: right; margin-top: 50px; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <!-- Replace with your actual logo path -->
+    <img src="{{ absolute_url(asset('build/images/logo.png')) }}" alt="Logo" class="logo">
+    <div class="address">
+        <div>OFFICE OF THE DIRECTOR</div>
+        <div>HIMALAYAN ZOOLOGICAL PARK, BULBULAY</div>
+        <div>FOREST & ENVIRONMENT DEPARTMENT</div>
+        <div>GOVERNMENT OF SIKKIM</div>
+    </div>
+</div>
+
+<div class="file-info">
+    <div>F.No. {{ file_number }}</div>
+    <div style="text-align: right;">Memo No.: {{ memo_number }}</div>
+    <div style="text-align: right;">Dated: {{ date }}</div>
+</div>
+
+<div class="to-address">
+    <div>To,</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;M/s. {{ supplier_name }}</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;{{ supplier_address }}</div>
+</div>
+
+<div class="subject">
+    <div>Sub: Supply order for Animals' & Birds' feed to the Himalayan Zoological Park, Bulbulay for the</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;month of {{ month_name }} {{ year }}</div>
+</div>
+
+<div class="content">
+    <div>Madam,</div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;Please arrange to supply the following animals' feed to the Himalayan Zoological Park, Bulbulay, Gangtok for the</div>
+    <div>month of {{ month_name }} {{ year }} as per your lowest quoted rates.</div>
+</div>
+
+<div>
+    <strong>I. Feeds for Mammals:</strong>
+    <table>
+        <thead>
+        <tr>
+            <th>Sl. No</th>
+            <th>Name of Item</th>
+            <th>Daily Requirement</th>
+            <th>Total requirement for the month</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in estimates %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ item.name }} ({{ item.unit }})</td>
+                <td>{{ item.quantity_per_day }} {{ item.unit }} x {{ feeding_days }} days</td>
+                <td>{{ item.total_quantity }} {{ item.unit }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div class="terms">
+    <strong>Terms & conditions:</strong>
+    <ol>
+            <li>{{ terms_conditions }}</li>
+
+    </ol>
+</div>
+
+<div class="signature">
+    <div>Director</div>
+    <div>Himalayan Zoological Park</div>
+</div>
+</body>
+</html>

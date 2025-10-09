@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pricing Estimate</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.5; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .logo { width: 100px; margin: 0 auto; }
+        .address { text-align: center; margin-bottom: 15px; font-weight: bold; }
+        .date { text-align: right; margin-bottom: 15px; }
+        .summary { margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+        th, td { border: 1px solid #000; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .total { font-weight: bold; text-align: right; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <!-- Replace with your actual logo path -->
+    <img src="{{ asset('logo.png') }}" alt="Logo">
+    <div class="address">
+        <div>OFFICE OF THE DIRECTOR</div>
+        <div>HIMALAYAN ZOOLOGICAL PARK, BULBULAY</div>
+        <div>FOREST & ENVIRONMENT DEPARTMENT</div>
+        <div>GOVERNMENT OF SIKKIM</div>
+    </div>
+</div>
+
+<div class="date">
+    Date Generated: {{ date_generated }}
+</div>
+
+<h2 style="text-align: center;">Pricing Estimate for {{ month_name }} {{ year }}</h2>
+
+<div class="summary">
+    <p><strong>Feeding Days:</strong> {{ feeding_days }} days ({{ total_days }} total days in month)</p>
+    <p><strong>Fasting Day:</strong> {{ fasting_day_name }} ({{ fasting_days }} fasting days)</p>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>Sl. No</th>
+        <th>Item Name</th>
+        <th>Unit</th>
+        <th>Daily Qty</th>
+        <th>Total Qty ({{ feeding_days }} days)</th>
+        <th>Unit Price (INR)</th>
+        <th>Total Price (INR)</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for item in estimates %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.unit }}</td>
+            <td>{{ item.quantity_per_day|number_format(2) }}</td>
+            <td>{{ item.total_quantity|number_format(2) }}</td>
+            <td>{{ item.price_per_unit|number_format(2) }}</td>
+            <td>{{ item.total_price|number_format(2) }}</td>
+        </tr>
+    {% endfor %}
+    <tr class="total">
+        <td colspan="6">Grand Total</td>
+        <td>{{ total_price|number_format(2) }} {{ currency }}</td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
