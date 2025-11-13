@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\util\FastingDays;
+use App\Util\FastingDays;
 use App\Entity\AnimalCategory;
 use App\Entity\FeedCategory;
 use App\Entity\FeedItem;
