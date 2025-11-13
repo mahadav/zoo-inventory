@@ -19,11 +19,6 @@ class AnimalCategory implements JsonSerializable
     #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
-    #[ORM\Column(type: 'integer', nullable: true)]
-    private ?int $fastingDay = null;
-
-
-
     public function getId(): ?int
     {
         return $this->id;
@@ -40,24 +35,14 @@ class AnimalCategory implements JsonSerializable
         return $this;
     }
 
-    public function getFastingDay(): ?int
-    {
-        return $this->fastingDay;
-    }
 
-    public function setFastingDay(?int $fastingDay): self
-    {
-        $this->fastingDay = $fastingDay;
-        return $this;
-    }
 
 
     public function jsonSerialize(): array
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'fastingDay' => $this->fastingDay,
+            'name' => $this->name
         ];
     }
 }
