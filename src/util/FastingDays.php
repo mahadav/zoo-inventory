@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Constants;
+namespace App\Util;
 
 class FastingDays
 {
