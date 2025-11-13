@@ -33,7 +33,7 @@ class EstimateController extends AbstractController
         if ($month === -1) {
             $totalDays = $feedingDays = 30;
         } else {
-            $totalDays = \cal_days_in_month(CAL_GREGORIAN, $month, $year);
+            $totalDays = cal_days_in_month(CAL_GREGORIAN, $month, $year);
             $feedingDays = ($fastingDay === -1)
                 ? $totalDays
                 : $totalDays - $this->countWeekdaysInMonth($fastingDay, $month, $year);
@@ -85,7 +85,7 @@ class EstimateController extends AbstractController
     {
         $weekday = $weekday % 7; // PHP: Sunday = 0, Saturday = 6
         $count = 0;
-        $daysInMonth = \cal_days_in_month(CAL_GREGORIAN, $month, $year);
+        $daysInMonth = cal_days_in_month(CAL_GREGORIAN, $month, $year);
 
         for ($day = 1; $day <= $daysInMonth; $day++) {
             $date = new \DateTime("$year-$month-$day");
