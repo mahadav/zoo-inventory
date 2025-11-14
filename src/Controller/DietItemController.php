@@ -72,7 +72,7 @@ class DietItemController extends AbstractController
             $dietItem->setFeedItem($feedItem);
             $dietItem->setQuantity($dietItemData['quantity']);
             $dietItem->setAnimal($animal);
-            $dietItem->setAdultCount($animal->getCurrentStock()->getFeedEligible());
+           // $dietItem->setAdultCount($animal->getCurrentStock()->getFeedEligible());
 
             $errors = $this->validator->validate($dietItem);
             if (count($errors) > 0) {

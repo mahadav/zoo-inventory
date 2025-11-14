@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\AnimalPopulation;
 use App\Repository\DietItemRepository;
 use App\Repository\FeedItemRepository;
 use Dompdf\Dompdf;
@@ -40,6 +41,7 @@ class EstimateController extends AbstractController
         }
 
         // Use new repository method to get aggregated feed consumption per day
+        //$animalPopulation=entitymanager->getRepository(AnimalPopulation::class);
         $dailyFeedTotals = $dietItemRepository->getDailyFeedConsumption(); // ← New method
 
         $estimates = [];

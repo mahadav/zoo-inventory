@@ -26,6 +26,7 @@ class AnimalController extends AbstractController
         private AnimalSpeciesRepository $animalSpeciesRepository,
         private AnimalCategoryRepository $categoryRepository,
         private SerializerInterface $serializer,
+        private AnimalPopulationRepository $animalPopulationRepository,
         private ValidatorInterface $validator
     ) {
     }
@@ -197,6 +198,40 @@ class AnimalController extends AbstractController
     public function list(): JsonResponse
     {
         $animals = $this->animalSpeciesRepository->findAll();
-        return $this->json($animals);
+        $response = [];
+
+        foreach ($animals as $animal) {
+
+            // Fetch latest population entry for this species
+            $population = $this->animalPopulationRepository->findOneBy(
+                ['species' => $animal],
+                ['recordedAt' => 'DESC']
+            );
+
+            // Default counts
+            $maleCount = 0;
+            $femaleCount = 0;
+            $underageCount = 0;
+
+            if ($population) {
+                $closingGroup = $population->getClosing();
+                $maleCount     = $closingGroup->getMale() ?? 0;
+                $femaleCount   = $closingGroup->getFemale() ?? 0;
+                $underageCount = $closingGroup->getUnderage() ?? 0;
+            }
+
+            // Merge animal JSON + flat population fields
+            $response[] = array_merge(
+                $animal->jsonSerialize(),
+                [
+                    'maleCount'     => $maleCount,
+                    'femaleCount'   => $femaleCount,
+                    'underageCount' => $underageCount,
+                ]
+            );
+        }
+
+        return $this->json($response);
     }
+
 }
