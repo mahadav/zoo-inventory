@@ -6,6 +6,7 @@ use App\Entity\AnimalPopulation;
 use App\Repository\DietItemRepository;
 use App\Repository\FeedItemRepository;
 use Dompdf\Dompdf;
+use Dompdf\Options;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -140,6 +141,9 @@ class EstimateController extends AbstractController
 
         $estimateData = json_decode($estimateData, true);
 
+        $logoPath = $this->getParameter('kernel.project_dir') . '/public/logo.png';
+
+
         // Generate HTML for PDF
         $html = $this->renderView('supply_order.html.twig', [
             'file_number' => $data['file_number'],
@@ -152,11 +156,16 @@ class EstimateController extends AbstractController
             'month_name' => date('F', mktime(0, 0, 0, $data['month'], 10)),
             'terms_conditions' => $data['terms_conditions'],
             'estimates' => $estimateData['estimates'],
-            'feeding_days' => $estimateData['feeding_days']
+            'feeding_days' => $estimateData['feeding_days'],
+            'logo_path' => $logoPath
         ]);
 
         // Configure Dompdf
-        $dompdf = new Dompdf();
+        $options = new Options();
+        $options->set('isRemoteEnabled', true);
+        $options->set('isHtml5ParserEnabled', true);
+        $dompdf = new Dompdf($options);
+
         $dompdf->loadHtml($html);
         $dompdf->setPaper('A4', 'portrait');
         $dompdf->render();
