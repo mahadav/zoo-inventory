@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Add Diet Item{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Add Diet Item for Animal #{{ animalId }}</h1>
+
+        <a href="{{ path('web_diet_items_list', {'animalId': animalId}) }}"
+           class="btn btn-secondary mb-3">
+            ← Back to List
+        </a>
+
+        <div class="card">
+            <div class="card-body">
+                <form method="post" action="{{ path('web_diet_items_add_submit', {'animalId': animalId}) }}">
+                    <div class="mb-3">
+                        <label for="feedId" class="form-label">Feed Item</label>
+                        <select class="form-control" id="feedId" name="feedId" required>
+                            <option value="">Select a feed item</option>
+                            {% for feedItem in feedItems %}
+                                <option value="{{ feedItem.id }}">
+                                    {{ feedItem.name }} ({{ feedItem.category.name }} - {{ feedItem.unit.name }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="quantity" class="form-label">Quantity</label>
+                        <input type="number" step="0.01" class="form-control"
+                               id="quantity" name="quantity" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Add Diet Item</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

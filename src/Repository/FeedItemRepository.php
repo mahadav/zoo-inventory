@@ -53,12 +53,24 @@ class FeedItemRepository extends ServiceEntityRepository
     }
 
     // Example custom method to find items by category
-    public function findByCategory(int $categoryId): array
+   /* public function findByCategory(int $categoryId): array
     {
         return $this->createQueryBuilder('f')
             ->join('f.category', 'c')
             ->andWhere('c.id = :categoryId')
             ->setParameter('categoryId', $categoryId)
+            ->getQuery()
+            ->getResult();
+    }*/
+
+    public function findByCategory(int $categoryId): array
+    {
+        // Assuming FeedItem has a relationship with AnimalCategory
+        return $this->createQueryBuilder('f')
+            ->join('f.animalCategory', 'c')
+            ->where('c.id = :categoryId')
+            ->setParameter('categoryId', $categoryId)
+            ->orderBy('f.name', 'ASC')
             ->getQuery()
             ->getResult();
     }

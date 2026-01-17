@@ -1,0 +1,190 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Animals - List{% endblock %}
+
+{% block body %}
+    <div class="container-fluid py-4">
+
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-bold mb-0">Animal Management</h2>
+                <p class="text-muted mb-0">Manage species, population & current status</p>
+            </div>
+
+            <a href="{{ path('web_animal_create_form') }}" class="btn btn-primary px-4">
+                <i class="bi bi-plus-circle"></i> Add New Animal
+            </a>
+        </div>
+
+
+        <!-- Success Messages -->
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-check-circle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+
+        <!-- Error Messages -->
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>{{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+
+
+        <!-- Table Card -->
+        <div class="card shadow-sm border-0">
+
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-list-ul me-1"></i> Animal List
+            </div>
+
+            <div class="card-body">
+
+                <div class="table-responsive">
+
+                    <table class="table table-hover table-bordered align-middle bg-white">
+                        <thead class="table-light">
+                        <tr>
+                            <th width="60">ID</th>
+                            <th>Common Name</th>
+                            <th>Scientific Name</th>
+                            <th>Category</th>
+                            <th>Population</th>
+                            <th>Schedule</th>
+                            <th>Status</th>
+                            <th width="150">Actions</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+
+                        {% for animalData in animals %}
+                            {% set animal = animalData.animal %}
+                            <tr>
+
+                                <!-- ID -->
+                                <td class="fw-bold">{{ animal.id }}</td>
+
+                                <!-- Common Name -->
+                                <td>
+                                    <strong>{{ animal.commonName }}</strong>
+                                </td>
+
+                                <!-- Scientific Name -->
+                                <td class="text-muted fst-italic">
+                                    {{ animal.scientificName }}
+                                </td>
+
+                                <!-- Category -->
+                                <td>
+                                <span class="badge bg-info px-3 py-2">
+                                    {{ animal.category.name }}
+                                </span>
+                                </td>
+
+                                <!-- Population -->
+                                <td>
+                                    <div class="d-flex flex-wrap gap-2">
+
+    <span class="badge bg-primary px-3 py-2" title="Male">
+        <i class="bi bi-gender-male me-1"></i>
+        {{ animalData.maleCount }}
+    </span>
+
+                                        <span class="badge bg-danger px-3 py-2" title="Female">
+        <i class="bi bi-gender-female me-1"></i>
+        {{ animalData.femaleCount }}
+    </span>
+
+                                        <span class="badge bg-secondary px-3 py-2" title="Underage">
+        <i class="bi bi-person-fill me-1"></i>
+        {{ animalData.underageCount }}
+    </span>
+
+                                        <span class="badge bg-success px-3 py-2" title="Total">
+        <i class="bi bi-people-fill me-1"></i>
+        {{ animalData.totalCount }}
+    </span>
+
+                                    </div>
+
+                                </td>
+
+                                <!-- Schedule -->
+                                <td>
+                                    {% if animal.schedule %}
+                                        <span class="badge bg-warning text-dark px-3 py-2">
+                                        {{ animal.schedule }}
+                                    </span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Status -->
+                                <td>
+                                    {% if animal.active %}
+                                        <span class="badge bg-success px-3 py-2">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary px-3 py-2">Inactive</span>
+                                    {% endif %}
+                                </td>
+
+                                <!-- Actions -->
+                                <td>
+                                    <div class="btn-group">
+
+                                        <a href="{{ path('web_animal_edit', {id: animal.id}) }}"
+                                           class="btn btn-sm btn-outline-primary px-3"
+                                           title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                        <a href="{{ path('api_animal_get', {id: animal.id}) }}"
+                                           target="_blank"
+                                           class="btn btn-sm btn-outline-info px-3"
+                                           title="View JSON">
+                                            <i class="bi bi-code-slash"></i>
+                                        </a>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                        {% else %}
+
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-5">
+                                    <i class="bi bi-inbox display-6 d-block mb-2"></i>
+                                    No animals found.
+                                    <a href="{{ path('web_animal_create_form') }}" class="fw-bold">
+                                        Create one?
+                                    </a>
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                        </tbody>
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-4 text-center text-muted">
+            <small>
+                Total: <strong>{{ animals|length }}</strong> animals •
+                API: <a href="{{ path('api_animal_list') }}" target="_blank">/api/animals</a>
+            </small>
+        </div>
+
+    </div>
+{% endblock %}

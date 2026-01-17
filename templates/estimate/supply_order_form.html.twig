@@ -1,0 +1,557 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Supply Order - {{ days_info.month_name }} {{ year }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .supply-order-form {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .form-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .form-section h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+
+        .btn-secondary {
+            background-color: #7f8c8d;
+            color: white;
+            margin-right: 10px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #95a5a6;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .alert-error {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .summary-box {
+            background: #f8f9fa;
+            border-left: 4px solid #3498db;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .estimate-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .estimate-table th,
+        .estimate-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .estimate-table th {
+            background-color: #f1f1f1;
+            font-weight: 600;
+        }
+
+        .estimate-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .total-row {
+            background-color: #e8f4fc !important;
+            font-weight: 600;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+        }
+
+        .field-info {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .input-with-button {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-with-button .form-control {
+            flex: 1;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="supply-order-form">
+        <h1>Create Supply Order</h1>
+
+        <!-- Flash Messages -->
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-error">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        <!-- Period Summary -->
+        <div class="form-section">
+            <h3>Period Information</h3>
+            <div class="summary-box">
+                <p><strong>Period:</strong> {{ days_info.month_name }} {{ year }}</p>
+                <p><strong>Total Days:</strong> {{ days_info.total_days }}</p>
+                <p><strong>Feeding Days:</strong> {{ days_info.feeding_days }}</p>
+                <p><strong>Fasting Days:</strong> {{ days_info.fasting_days }} ({{ days_info.fasting_day_name }})</p>
+            </div>
+        </div>
+
+        <!-- Feed Estimate Summary -->
+        {% if estimates is defined %}
+            <div class="form-section">
+                <h3>Feed Estimate Summary</h3>
+                <table class="estimate-table">
+                    <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Daily Qty</th>
+                        <th>Total Qty</th>
+                        <th>Unit Price</th>
+                        <th>Total Price</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for item in estimates.estimates %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.quantity_per_day }} {{ item.unit }}</td>
+                            <td>{{ item.total_quantity }} {{ item.unit }}</td>
+                            <td>{{ item.price_per_unit|number_format(2) }} {{ estimates.currency }}</td>
+                            <td>{{ item.total_price|number_format(2) }} {{ estimates.currency }}</td>
+                        </tr>
+                    {% endfor %}
+                    <tr class="total-row">
+                        <td colspan="4" style="text-align: right;"><strong>Total:</strong></td>
+                        <td><strong>{{ estimates.total_price|number_format(2) }} {{ estimates.currency }}</strong></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        {% endif %}
+
+        <!-- Supply Order Form -->
+        <form method="post" action="{{ path('supply_order_submit') }}" id="supplyOrderForm">
+            <input type="hidden" name="month" value="{{ month }}">
+            <input type="hidden" name="year" value="{{ year }}">
+            <input type="hidden" name="fasting_day" value="{{ fasting_day }}">
+
+            <div class="form-section">
+                <h3>Supplier Information</h3>
+
+                <div class="form-group">
+                    <label for="supplier_name">Supplier Name *</label>
+                    <input type="text"
+                           id="supplier_name"
+                           name="supplier_name"
+                           class="form-control"
+                           required
+                           placeholder="Enter supplier name">
+                    <div class="error-message" id="supplier_name_error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="supplier_address">Supplier Address *</label>
+                    <textarea id="supplier_address"
+                              name="supplier_address"
+                              class="form-control"
+                              required
+                              placeholder="Enter complete supplier address"></textarea>
+                    <div class="error-message" id="supplier_address_error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="supplier_contact">Supplier Contact *</label>
+                    <input type="tel"
+                           id="supplier_contact"
+                           name="supplier_contact"
+                           class="form-control"
+                           required
+                           placeholder="Enter contact number (10-15 digits)">
+                    <div class="field-info">Format: +[country code][number] or just numbers</div>
+                    <div class="error-message" id="supplier_contact_error"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Order Details</h3>
+
+                <div class="form-group">
+                    <label for="file_number">File Number *</label>
+                    <input type="text"
+                           id="file_number"
+                           name="file_number"
+                           class="form-control"
+                           required
+                           placeholder="Enter file number">
+                    <div class="error-message" id="file_number_error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="memo_number">Memo Number *</label>
+                    <input type="text"
+                           id="memo_number"
+                           name="memo_number"
+                           class="form-control"
+                           required
+                           placeholder="Enter memo number">
+                    <div class="error-message" id="memo_number_error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="date">Delivery Date *</label>
+                    <input type="date"
+                           id="date"
+                           name="date"
+                           class="form-control"
+                           value="{{ delivery_date }}"
+                           required>
+                    <div class="error-message" id="date_error"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>Terms & Conditions</h3>
+
+                <div class="form-group">
+                    <label for="payment_terms">Payment Terms *</label>
+                    <input type="text"
+                           id="payment_terms"
+                           name="payment_terms"
+                           class="form-control"
+                           value="{{ default_payment_terms }}"
+                           required
+                           placeholder="Enter payment terms">
+                    <div class="error-message" id="payment_terms_error"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="terms_conditions">Terms and Conditions *</label>
+                    <textarea id="terms_conditions"
+                              name="terms_conditions"
+                              class="form-control"
+                              required
+                              placeholder="Enter terms and conditions">{{ default_terms }}</textarea>
+                    <div class="field-info">Each condition should be on a new line</div>
+                    <div class="error-message" id="terms_conditions_error"></div>
+                </div>
+            </div>
+
+            <div class="form-actions">
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">
+                    Generate Supply Order PDF
+                </button>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('supplyOrderForm');
+            const previewBtn = document.getElementById('previewBtn');
+            const validateBtn = document.getElementById('validateBtn');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Clear all error messages
+            function clearErrors() {
+                document.querySelectorAll('.error-message').forEach(el => {
+                    el.textContent = '';
+                    el.style.display = 'none';
+                });
+            }
+
+            // Display error for a specific field
+            function showError(fieldId, message) {
+                const errorEl = document.getElementById(fieldId + '_error');
+                if (errorEl) {
+                    errorEl.textContent = message;
+                    errorEl.style.display = 'block';
+                }
+            }
+
+            // Validate form inputs
+            function validateForm() {
+                clearErrors();
+                let isValid = true;
+
+                // Required fields validation
+                const requiredFields = [
+                    'supplier_name',
+                    'supplier_address',
+                    'supplier_contact',
+                    'file_number',
+                    'memo_number',
+                    'date',
+                    'payment_terms',
+                    'terms_conditions'
+                ];
+
+                requiredFields.forEach(fieldId => {
+                    const field = document.getElementById(fieldId);
+                    if (!field || !field.value.trim()) {
+                        showError(fieldId, 'This field is required');
+                        isValid = false;
+                    }
+                });
+
+                // Contact number validation
+                const contactField = document.getElementById('supplier_contact');
+                if (contactField && contactField.value.trim()) {
+                    const contactRegex = /^[+]?[0-9]{10,15}$/;
+                    if (!contactRegex.test(contactField.value.trim())) {
+                        showError('supplier_contact', 'Invalid contact number (10-15 digits)');
+                        isValid = false;
+                    }
+                }
+
+                return isValid;
+            }
+
+            // AJAX validation
+            validateBtn.addEventListener('click', function() {
+                if (validateForm()) {
+                    // Prepare form data for AJAX
+                    const formData = new FormData(form);
+                    const jsonData = {};
+                    formData.forEach((value, key) => {
+                        jsonData[key] = value;
+                    });
+
+                    fetch('{{ path("supply_order_validate") }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(jsonData)
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.valid) {
+                                alert('✅ All inputs are valid!');
+                            } else {
+                                // Display errors from server
+                                for (const field in data.errors) {
+                                    showError(field, data.errors[field]);
+                                }
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Validation error:', error);
+                            alert('Error during validation');
+                        });
+                }
+            });
+
+            // Preview form in new tab
+            previewBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+
+                if (validateForm()) {
+                    // Create a temporary form for preview
+                    const previewForm = document.createElement('form');
+                    previewForm.method = 'POST';
+                    previewForm.action = '{{ path("supply_order_preview") }}';
+                    previewForm.target = '_blank';
+
+                    // Copy all form data
+                    const formData = new FormData(form);
+                    formData.forEach((value, key) => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        previewForm.appendChild(input);
+                    });
+
+                    document.body.appendChild(previewForm);
+                    previewForm.submit();
+                    document.body.removeChild(previewForm);
+                }
+            });
+
+            // Form submission
+            // Replace the existing form submit handler with this
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                if (!validateForm()) return;
+
+                if (!confirm('Generate supply order PDF?')) return;
+
+                submitBtn.disabled = true;
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Generating PDF...';
+
+                try {
+                    // Send form as FormData (keeps file/encoding behavior server expects)
+                    const formData = new FormData(form);
+
+                    const response = await fetch('{{ path("supply_order_submit") }}', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'same-origin', // include cookies if needed
+                        headers: {
+                            'Accept': 'application/pdf' // hint to server we expect PDF
+                        }
+                    });
+
+                    if (!response.ok) {
+                        // Try to parse server error message
+                        const txt = await response.text();
+                        console.error('Server error:', txt);
+                        alert('Server error while generating PDF. See console for details.');
+                        return;
+                    }
+
+                    const blob = await response.blob();
+
+                    // Optional: check MIME type to be safe
+                    if (!blob.type || !blob.type.includes('pdf')) {
+                        // If server returned JSON or HTML error as blob, show a message
+                        const text = await blob.text();
+                        console.error('Unexpected response when expecting PDF:', text);
+                        alert('Unexpected response from server. Check console for details.');
+                        return;
+                    }
+
+                    // Create object URL and open in new tab/window
+                    const url = URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+
+                    // Revoke URL after a short delay to allow new tab to load
+                    setTimeout(() => URL.revokeObjectURL(url), 1000 * 60); // revoke after 60s
+
+                } catch (err) {
+                    console.error('Error generating PDF:', err);
+                    alert('Error generating PDF. See console for details.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = originalText;
+                }
+            });
+
+            // Auto-generate memo number if empty
+            const memoField = document.getElementById('memo_number');
+            const fileField = document.getElementById('file_number');
+
+            fileField.addEventListener('blur', function() {
+                if (!memoField.value.trim() && this.value.trim()) {
+                    // Generate memo number: SO-YYYYMM-001 format
+                    const date = new Date();
+                    const yearMonth = date.getFullYear() +
+                        String(date.getMonth() + 1).padStart(2, '0');
+                    const randomNum = Math.floor(Math.random() * 999).toString().padStart(3, '0');
+                    memoField.value = `SO-${yearMonth}-${randomNum}`;
+                }
+            });
+
+            // Set min date for delivery date (tomorrow)
+            const dateField = document.getElementById('date');
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            dateField.min = tomorrow.toISOString().split('T')[0];
+        });
+    </script>
+{% endblock %}

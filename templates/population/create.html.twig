@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Population Record{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Create Population Record</h1>
+            <a href="{{ path('web_animal_population_index') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+
+        {% if lastOpeningData %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                Opening stock has been auto-populated from the last record.
+                You can modify these values if needed.
+            </div>
+        {% endif %}
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Record Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ path('web_animal_population_create') }}">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="speciesId" class="form-label required">Species</label>
+                            <select id="speciesId" name="speciesId" class="form-select" required>
+                                <option value="">Select a species</option>
+                                {% for sp in allSpecies %}
+                                    <option value="{{ sp.id }}"
+                                            {{ (species and species.id == sp.id) ? 'selected' : '' }}>
+                                        {{ sp.commonName }}
+                                        {% if sp.scientificName %}
+                                            ({{ sp.scientificName }})
+                                        {% endif %}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="recordedAt" class="form-label required">Record Date</label>
+                            <input type="date" id="recordedAt" name="recordedAt"
+                                   class="form-control" required
+                                   value="{{ "now"|date('Y-m-d') }}">
+                        </div>
+                    </div>
+
+                    {% include 'population/_form_groups.html.twig' with {
+                        'record': null,
+                        'lastOpeningData': lastOpeningData
+                    } %}
+
+                    <div class="mb-4">
+                        <label for="remarks" class="form-label">Remarks</label>
+                        <textarea id="remarks" name="remarks" class="form-control"
+                                  rows="3" placeholder="Any additional notes..."></textarea>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Create Record
+                        </button>
+                        <a href="{{ path('web_animal_population_index') }}" class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Function to get numeric value from input
+            function getNumericValue(id) {
+                const element = document.getElementById(id);
+                return element ? parseInt(element.value) || 0 : 0;
+            }
+
+            // Function to calculate closing stock
+            function calculateClosingStock() {
+                // Get opening values
+                const openingMale = getNumericValue('opening_male');
+                const openingFemale = getNumericValue('opening_female');
+                const openingUnderage = getNumericValue('opening_underage');
+
+                // Get additions (births and acquisitions)
+                const birthsMale = getNumericValue('births_male');
+                const birthsFemale = getNumericValue('births_female');
+                const birthsUnderage = getNumericValue('births_underage');
+
+                const acquisitionsMale = getNumericValue('acquisitions_male');
+                const acquisitionsFemale = getNumericValue('acquisitions_female');
+                const acquisitionsUnderage = getNumericValue('acquisitions_underage');
+
+                // Get reductions (deaths and disposals)
+                const deathsMale = getNumericValue('deaths_male');
+                const deathsFemale = getNumericValue('deaths_female');
+                const deathsUnderage = getNumericValue('deaths_underage');
+
+                const disposalsMale = getNumericValue('disposals_male');
+                const disposalsFemale = getNumericValue('disposals_female');
+                const disposalsUnderage = getNumericValue('disposals_underage');
+
+                // Calculate closing stock
+                const closingMale = openingMale + birthsMale + acquisitionsMale - deathsMale - disposalsMale;
+                const closingFemale = openingFemale + birthsFemale + acquisitionsFemale - deathsFemale - disposalsFemale;
+                const closingUnderage = openingUnderage + birthsUnderage + acquisitionsUnderage - deathsUnderage - disposalsUnderage;
+
+                // Update closing stock inputs (readonly)
+                const closingMaleInput = document.getElementById('closing_male');
+                const closingFemaleInput = document.getElementById('closing_female');
+                const closingUnderageInput = document.getElementById('closing_underage');
+
+                if (closingMaleInput) {
+                    closingMaleInput.value = Math.max(0, closingMale);
+                }
+                if (closingFemaleInput) {
+                    closingFemaleInput.value = Math.max(0, closingFemale);
+                }
+                if (closingUnderageInput) {
+                    closingUnderageInput.value = Math.max(0, closingUnderage);
+                }
+
+                // Update total display
+                calculateClosingTotal();
+            }
+
+            // Function to calculate and display closing total
+            function calculateClosingTotal() {
+                const closingMale = getNumericValue('closing_male');
+                const closingFemale = getNumericValue('closing_female');
+                const closingUnderage = getNumericValue('closing_underage');
+
+                const total = closingMale + closingFemale + closingUnderage;
+
+                const totalElement = document.getElementById('closing_total');
+                if (totalElement) {
+                    totalElement.textContent = total;
+                }
+            }
+
+            // Make closing stock inputs read-only
+            function makeClosingInputsReadOnly() {
+                const closingInputs = ['closing_male', 'closing_female', 'closing_underage'];
+                closingInputs.forEach(id => {
+                    const input = document.getElementById(id);
+                    if (input) {
+                        input.readOnly = true;
+                        input.classList.add('bg-light');
+                    }
+                });
+            }
+
+            // Add event listeners to all input fields except closing ones
+            const inputGroups = [
+                'opening', 'births', 'acquisitions', 'deaths', 'disposals'
+            ];
+
+            inputGroups.forEach(group => {
+                const maleInput = document.getElementById(`${group}_male`);
+                const femaleInput = document.getElementById(`${group}_female`);
+                const underageInput = document.getElementById(`${group}_underage`);
+
+                [maleInput, femaleInput, underageInput].forEach(input => {
+                    if (input) {
+                        input.addEventListener('input', calculateClosingStock);
+                        input.addEventListener('change', calculateClosingStock);
+                    }
+                });
+            });
+
+            // Initialize
+            makeClosingInputsReadOnly();
+            calculateClosingStock();
+        });
+    </script>
+{% endblock %}

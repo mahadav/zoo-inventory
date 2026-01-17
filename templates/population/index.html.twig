@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Animal Population - Overview{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Animal Population Records</h1>
+            <a href="{{ path('web_animal_population_create_form') }}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> New Record
+            </a>
+        </div>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+
+        <div class="row">
+            {% for species in allSpecies %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">{{ species.commonName }}</h5>
+                            {% if species.scientificName %}
+                                <small class="text-muted">{{ species.scientificName }}</small>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <strong>Category:</strong> {{ species.category.name }}<br>
+                                <strong>Schedule:</strong> {{ species.schedule|default('Not specified') }}
+                            </p>
+
+                            {% if recentRecords[species.id] is defined %}
+                                <h6>Recent Records:</h6>
+                                <ul class="list-group list-group-flush">
+                                    {% for record in recentRecords[species.id] %}
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            {{ record.recordedAt|date('Y-m-d') }}
+                                            <span class="badge bg-primary rounded-pill">
+                                            {{ record.closing.male + record.closing.female }} total
+                                        </span>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">No records found</p>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <a href="{{ path('web_animal_population_list', {'speciesId': species.id}) }}"
+                               class="btn btn-sm btn-outline-primary">
+                                View All Records
+                            </a>
+                            <a href="{{ path('web_animal_population_create_form', {'speciesId': species.id}) }}"
+                               class="btn btn-sm btn-outline-success">
+                                Add Record
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">No species found. Please add species first.</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

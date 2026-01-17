@@ -1,0 +1,66 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit Record - {{ record.species.commonName }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Edit Population Record</h1>
+            <a href="{{ path('web_animal_population_view', {'id': record.id}) }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to View
+            </a>
+        </div>
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Edit Record Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" action="{{ path('web_animal_population_edit', {'id': record.id}) }}">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label for="speciesId" class="form-label required">Species</label>
+                            <select id="speciesId" name="speciesId" class="form-select" required disabled>
+                                <option value="{{ record.species.id }}" selected>
+                                    {{ record.species.commonName }}
+                                    {% if record.species.scientificName %}
+                                        ({{ record.species.scientificName }})
+                                    {% endif %}
+                                </option>
+                            </select>
+                            <input type="hidden" name="speciesId" value="{{ record.species.id }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="recordedAt" class="form-label required">Record Date</label>
+                            <input type="date" id="recordedAt" name="recordedAt"
+                                   class="form-control" required
+                                   value="{{ record.recordedAt|date('Y-m-d') }}">
+                        </div>
+                    </div>
+
+                    {% include 'population/_form_groups.html.twig' %}
+
+                    <div class="mb-4">
+                        <label for="remarks" class="form-label">Remarks</label>
+                        <textarea id="remarks" name="remarks" class="form-control"
+                                  rows="3">{{ record.remarks }}</textarea>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="fas fa-save"></i> Update Record
+                        </button>
+                        <a href="{{ path('web_animal_population_view', {'id': record.id}) }}"
+                           class="btn btn-outline-secondary">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

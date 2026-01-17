@@ -1,0 +1,322 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Select Animal Category{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .category-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .category-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .category-header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .category-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .category-option:hover {
+            border-color: #3498db;
+            background: #e8f4fc;
+        }
+
+        .category-option.active {
+            border-color: #3498db;
+            background: #3498db;
+            color: white;
+        }
+
+        .category-name {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-continue {
+            padding: 12px 18px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-continue:hover:not(:disabled) {
+            background-color: #219a52;
+        }
+
+        .btn-secondary {
+            padding: 12px 18px;
+            background-color: #2980b9;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #1f6f9a;
+        }
+
+        .btn-continue:disabled,
+        .btn-secondary:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .period-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .period-selector select,
+        .period-selector input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .period-selector select {
+            min-width: 160px;
+        }
+
+        .period-selector input[type="number"] {
+            width: 120px;
+        }
+
+        @media (max-width: 768px) {
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .period-selector {
+                flex-direction: column;
+            }
+
+            .period-selector select,
+            .period-selector input {
+                width: 100%;
+            }
+
+            .btn-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="category-container">
+        <div class="category-card">
+            <div class="category-header">
+                <h1>Select Animal Category</h1>
+                <p>Choose a category to view feed requirements</p>
+            </div>
+
+            {# Default action is per-day table route. We'll change action for yearly when needed. #}
+            <form id="categoryForm" method="get" action="{{ path('feed_estimate_table') }}">
+                <!-- Fasting Day & Year Selection -->
+                <div class="form-group">
+                    <label>Select Fasting Day and Year</label>
+                    <div class="period-selector">
+                        <input type="number"
+                               id="year"
+                               name="year"
+                               value="{{ year|default(date().format('Y')) }}"
+                               min="2000"
+                               max="2100"
+                               placeholder="Year"
+                               required>
+
+                        <select id="fastingDay" name="fastingDay" aria-label="Fasting day">
+                            <option value="-1" {% if fastingDay is defined and fastingDay == -1 %}selected{% endif %}>No Fasting Day</option>
+                            <option value="0" {% if fastingDay is defined and fastingDay == 0 %}selected{% endif %}>Sunday</option>
+                            <option value="1" {% if fastingDay is defined and fastingDay == 1 %}selected{% endif %}>Monday</option>
+                            <option value="2" {% if fastingDay is defined and fastingDay == 2 %}selected{% endif %}>Tuesday</option>
+                            <option value="3" {% if fastingDay is defined and fastingDay == 3 %}selected{% endif %}>Wednesday</option>
+                            <option value="4" {% if fastingDay is defined and fastingDay == 4 %}selected{% endif %}>Thursday</option>
+                            <option value="5" {% if fastingDay is defined and fastingDay == 5 %}selected{% endif %}>Friday</option>
+                            <option value="6" {% if fastingDay is defined and fastingDay == 6 %}selected{% endif %}>Saturday</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Category Selection -->
+                <div class="form-group">
+                    <label>Select Animal Category</label>
+                    <div class="category-grid">
+                        {% for category in categories %}
+                            <div class="category-option" data-category="{{ category.id }}">
+                                <div class="category-name">{{ category.name }}</div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" id="category" name="category" required>
+                </div>
+
+                <div class="btn-row">
+                    <button type="submit" class="btn-continue" id="perDay" disabled>
+                        View Per Day Feed Consumption →
+                    </button>
+
+                    <button type="button"
+                            class="btn-secondary"
+                            id="yearlyBtn"
+                            title="View yearly feed estimate"
+                            disabled>
+                        View Yearly Feed Estimate →
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const categoryOptions = document.querySelectorAll('.category-option');
+            const categoryInput = document.getElementById('category');
+            const perDayBtn = document.getElementById('perDay');
+            const yearlyBtn = document.getElementById('yearlyBtn');
+            const yearInput = document.getElementById('year');
+            const form = document.getElementById('categoryForm');
+
+            // Helper to validate year (within min/max and not empty)
+            function isValidYear() {
+                const val = parseInt(yearInput.value, 10);
+                if (isNaN(val)) return false;
+                const min = parseInt(yearInput.getAttribute('min'), 10) || 0;
+                const max = parseInt(yearInput.getAttribute('max'), 10) || 9999;
+                return val >= min && val <= max;
+            }
+
+            // Update button enabled state based on current inputs
+            function updateButtons() {
+                const hasCategory = !!categoryInput.value;
+                const validYear = isValidYear();
+
+                // Enable per-day only when category selected and year valid
+                perDayBtn.disabled = !(hasCategory && validYear);
+
+                // Same for yearly button (as requested: activated when all inputs are valid)
+                yearlyBtn.disabled = !(hasCategory && validYear);
+            }
+
+            // Handle category selection
+            categoryOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove active class from all options
+                    categoryOptions.forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+
+                    // Add active class to clicked option
+                    this.classList.add('active');
+
+                    // Set the selected category value
+                    const categoryId = this.dataset.category;
+                    categoryInput.value = categoryId;
+
+                    updateButtons();
+                });
+            });
+
+            // Watch year input changes
+            yearInput.addEventListener('input', updateButtons);
+
+            // Yearly button: change form action and submit
+            yearlyBtn.addEventListener('click', function() {
+                if (this.disabled) return;
+                // set the form action to yearly route and submit
+                form.action = "{{ path('web_estimate_yearly_view') }}";
+                form.submit();
+            });
+
+            // If the page was opened with URL params, restore selection
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryParam = urlParams.get('category');
+            const yearParam = urlParams.get('year');
+            const fastingParam = urlParams.get('fastingDay');
+
+            if (categoryParam) {
+                const option = document.querySelector(`.category-option[data-category="${categoryParam}"]`);
+                if (option) {
+                    option.click();
+                } else {
+                    // If category from URL not in DOM, still set hidden input so form will submit
+                    categoryInput.value = categoryParam;
+                }
+            }
+
+            if (yearParam) {
+                yearInput.value = yearParam;
+            }
+
+            if (fastingParam) {
+                const fastingSelect = document.getElementById('fastingDay');
+                if (fastingSelect) fastingSelect.value = fastingParam;
+            }
+
+            // run once to set initial state
+            updateButtons();
+        });
+    </script>
+{% endblock %}

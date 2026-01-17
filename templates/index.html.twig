@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Home{% endblock %}
+
+{% block page_title %}Welcome to Zoo Inventory{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="jumbotron bg-light p-5 rounded">
+                    <h1 class="display-4">Welcome to Zoo Inventory System</h1>
+                    <p class="lead">Manage your zoo animals, their diets, and feeding estimates all in one place.</p>
+                    <hr class="my-4">
+                    <p>Get started by exploring the features available in the sidebar navigation.</p>
+
+                    <div class="row mt-5">
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-paw fa-3x text-primary mb-3"></i>
+                                    <h5 class="card-title">Animal Management</h5>
+                                    <p class="card-text">View, edit, and manage animal species and their population records.</p>
+                                    <a href="{{ path('web_animal_list') }}" class="btn btn-primary">Manage Animals</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-apple-alt fa-3x text-success mb-3"></i>
+                                    <h5 class="card-title">Food & Diets</h5>
+                                    <p class="card-text">Manage food items and assign diets to different animal species.</p>
+                                    <a href="{{ path('web_diet_animals') }}" class="btn btn-success">Manage Diets</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4 mb-3">
+                            <div class="card h-100">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-calculator fa-3x text-info mb-3"></i>
+                                    <h5 class="card-title">Feed Estimation</h5>
+                                    <p class="card-text">Generate day-wise and yearly feed estimates for your zoo.</p>
+                                    <a href="{{ path('feed_estimate_table') }}" class="btn btn-info">Estimate Feeds</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <a href="{{ path('web_dashboard') }}" class="btn btn-lg btn-outline-primary">
+                            <i class="fas fa-tachometer-alt me-2"></i>Go to Dashboard
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

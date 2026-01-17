@@ -1,0 +1,103 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Population Records - {{ species.commonName }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1>{{ species.commonName }} Population Records</h1>
+                {% if species.scientificName %}
+                    <p class="lead">{{ species.scientificName }}</p>
+                {% endif %}
+            </div>
+            <div>
+                <a href="{{ path('web_animal_population_index') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                <a href="{{ path('web_animal_population_create_form', {'speciesId': species.id}) }}"
+                   class="btn btn-primary">
+                    <i class="fas fa-plus"></i> New Record
+                </a>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Filter Records</h5>
+            </div>
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-6">
+                        <label for="date" class="form-label">Filter by Date:</label>
+                        <input type="date" class="form-control" id="date" name="date"
+                               value="{{ selectedDate }}">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary me-2">
+                            <i class="fas fa-filter"></i> Filter
+                        </button>
+                        <a href="{{ path('web_animal_population_list', {'speciesId': species.id}) }}"
+                           class="btn btn-outline-secondary">
+                            Clear
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {% if records %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Opening</th>
+                        <th>Births</th>
+                        <th>Acquisitions</th>
+                        <th>Deaths</th>
+                        <th>Disposals</th>
+                        <th>Closing</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for record in records %}
+                        <tr>
+                            <td>{{ record.recordedAt|date('Y-m-d') }}</td>
+                            <td>{{ record.opening.male + record.opening.female }}</td>
+                            <td>{{ record.births.male + record.births.female }}</td>
+                            <td>{{ record.acquisitions.male + record.acquisitions.female }}</td>
+                            <td>{{ record.deaths.male + record.deaths.female }}</td>
+                            <td>{{ record.disposals.male + record.disposals.female }}</td>
+                            <td>
+                                <strong>{{ record.closing.male + record.closing.female }}</strong>
+                                <small class="text-muted d-block">
+                                    (♂ {{ record.closing.male }} / ♀ {{ record.closing.female }})
+                                </small>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ path('web_animal_population_view', {'id': record.id}) }}"
+                                       class="btn btn-outline-info" title="View">
+                                        <i class="bi bi-eye"></i>
+
+
+                                    </a>
+
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                No population records found for this species.
+                <a href="{{ path('web_animal_population_create_form', {'speciesId': species.id}) }}"
+                   class="alert-link">Create the first record</a>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}

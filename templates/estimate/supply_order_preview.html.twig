@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Supply Order Preview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+
+        .preview-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #3498db;
+        }
+
+        .logo {
+            max-width: 150px;
+            max-height: 80px;
+        }
+
+        .company-info h1 {
+            color: #2c3e50;
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .order-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .order-details {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .order-details th,
+        .order-details td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .order-details th {
+            background-color: #f1f1f1;
+            font-weight: bold;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .items-table th {
+            background-color: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .items-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+
+        .items-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .total-row {
+            background-color: #e8f4fc !important;
+            font-weight: bold;
+        }
+
+        .terms-section {
+            margin-top: 30px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .signature-section {
+            margin-top: 50px;
+            padding-top: 20px;
+            border-top: 2px solid #3498db;
+        }
+
+        .signature-line {
+            width: 300px;
+            border-bottom: 1px solid #000;
+            margin: 40px 0 10px;
+        }
+
+        .print-btn {
+            display: block;
+            width: 200px;
+            margin: 30px auto;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        @media print {
+            .print-btn {
+                display: none;
+            }
+
+            body {
+                margin: 0;
+                background: white;
+            }
+
+            .preview-container {
+                box-shadow: none;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="preview-container">
+    <!-- Header -->
+    <div class="header">
+        <div class="company-info">
+            <h1>Zoo Inventory Management</h1>
+            <p>Supply Order</p>
+        </div>
+        {% if logo_path is defined and file_exists(logo_path) %}
+            <img src="{{ logo_path }}" alt="Logo" class="logo">
+        {% endif %}
+    </div>
+
+    <!-- Order Info -->
+    <div class="order-info">
+        <table class="order-details">
+            <tr>
+                <th>File Number:</th>
+                <td>{{ file_number }}</td>
+                <th>Memo Number:</th>
+                <td>{{ memo_number }}</td>
+            </tr>
+            <tr>
+                <th>Delivery Date:</th>
+                <td>{{ date }}</td>
+                <th>Period:</th>
+                <td>{{ month_name }} {{ year }}</td>
+            </tr>
+            <tr>
+                <th>Feeding Days:</th>
+                <td>{{ feeding_days }}</td>
+                <th>Payment Terms:</th>
+                <td>{{ payment_terms }}</td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Supplier Info -->
+    <h3>Supplier Information</h3>
+    <table class="order-details">
+        <tr>
+            <th>Name:</th>
+            <td>{{ supplier_name }}</td>
+            <th>Contact:</th>
+            <td>{{ supplier_contact }}</td>
+        </tr>
+        <tr>
+            <th>Address:</th>
+            <td colspan="3">{{ supplier_address }}</td>
+        </tr>
+    </table>
+
+    <!-- Items Table -->
+    <h3>Items Required</h3>
+    <table class="items-table">
+        <thead>
+        <tr>
+            <th>Item Name</th>
+            <th>Daily Quantity</th>
+            <th>Total Quantity</th>
+            <th>Unit</th>
+            <th>Unit Price</th>
+            <th>Total Price</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for item in estimates %}
+            <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.quantity_per_day }}</td>
+                <td>{{ item.total_quantity }}</td>
+                <td>{{ item.unit }}</td>
+                <td>₹{{ item.price_per_unit|number_format(2) }}</td>
+                <td>₹{{ item.total_price|number_format(2) }}</td>
+            </tr>
+        {% endfor %}
+        {% set total = estimates|reduce((sum, item) => sum + item.total_price, 0) %}
+        <tr class="total-row">
+            <td colspan="5" style="text-align: right;"><strong>Grand Total:</strong></td>
+            <td><strong>₹{{ total|number_format(2) }}</strong></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <!-- Terms & Conditions -->
+    <div class="terms-section">
+        <h3>Terms and Conditions</h3>
+        <div style="white-space: pre-line;">{{ terms_conditions }}</div>
+    </div>
+
+    <!-- Signature Section -->
+    <div class="signature-section">
+        <div style="float: right; text-align: center;">
+            <div class="signature-line"></div>
+            <p>Authorized Signature</p>
+            <p>Zoo Inventory Management</p>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+
+    <!-- Print Button -->
+    <button class="print-btn" onclick="window.print()">Print Preview</button>
+</div>
+
+<script>
+    // Auto-print if needed
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('print') === 'true') {
+        window.print();
+    }
+</script>
+</body>
+</html>

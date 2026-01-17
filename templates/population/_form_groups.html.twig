@@ -1,0 +1,58 @@
+{# population/_form_groups.html.twig #}
+{% set groups = [
+    { 'key': 'opening', 'label': 'Opening Balance' },
+    { 'key': 'births', 'label': 'Births' },
+    { 'key': 'acquisitions', 'label': 'Acquisitions' },
+    { 'key': 'deaths', 'label': 'Deaths' },
+    { 'key': 'disposals', 'label': 'Disposals' },
+    { 'key': 'closing', 'label': 'Closing Balance' }
+] %}
+
+<div class="row mb-4">
+    {% for group in groups %}
+        <div class="col-md-6 col-lg-4 mb-3">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h6 class="mb-0">{{ group.label }}</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-2">
+                        <div class="col-4">
+                            <label for="{{ group.key }}_male" class="form-label">Males</label>
+                            <input type="number" id="{{ group.key }}_male"
+                                   name="{{ group.key }}[male]" class="form-control {{ group.key == 'closing' ? 'bg-light' : '' }}"
+                                   min="0" step="1"
+                                   {% if group.key == 'closing' %}readonly{% endif %}
+                                   value="{% if group.key == 'opening' and lastOpeningData %}{{ lastOpeningData.male }}{% elseif record %}{{ record[group.key].male }}{% else %}0{% endif %}">
+                        </div>
+                        <div class="col-4">
+                            <label for="{{ group.key }}_female" class="form-label">Females</label>
+                            <input type="number" id="{{ group.key }}_female"
+                                   name="{{ group.key }}[female]" class="form-control {{ group.key == 'closing' ? 'bg-light' : '' }}"
+                                   min="0" step="1"
+                                   {% if group.key == 'closing' %}readonly{% endif %}
+                                   value="{% if group.key == 'opening' and lastOpeningData %}{{ lastOpeningData.female }}{% elseif record %}{{ record[group.key].female }}{% else %}0{% endif %}">
+                        </div>
+                        <div class="col-4">
+                            <label for="{{ group.key }}_underage" class="form-label">Underage</label>
+                            <input type="number" id="{{ group.key }}_underage"
+                                   name="{{ group.key }}[underage]" class="form-control {{ group.key == 'closing' ? 'bg-light' : '' }}"
+                                   min="0" step="1"
+                                   {% if group.key == 'closing' %}readonly{% endif %}
+                                   value="{% if group.key == 'opening' and lastOpeningData %}{{ lastOpeningData.underage }}{% elseif record and record[group.key].underage is defined %}{{ record[group.key].underage }}{% else %}0{% endif %}">
+                        </div>
+                    </div>
+
+                    {% if group.key == 'closing' %}
+                        <div class="mt-2 pt-2 border-top">
+                            <small class="text-muted">
+                                <strong>Total:</strong>
+                                <span id="{{ group.key }}_total" class="fw-bold">0</span>
+                            </small>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

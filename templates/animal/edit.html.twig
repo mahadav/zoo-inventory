@@ -1,0 +1,323 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Animals - Edit {{ animalData.animal.commonName }}{% endblock %}
+
+{% block body %}
+    <div class="container-fluid py-4">
+        <div class="row">
+            <div class="col-md-8">
+                {% for message in app.flashes('success') %}
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                {% for message in app.flashes('error') %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h2 class="h4 mb-0">
+                            <i class="bi bi-pencil"></i> Edit Animal
+                            <span class="badge bg-secondary float-end">ID: {{ animalData.animal.id }}</span>
+                        </h2>
+                        <div class="btn-group">
+                            <!-- Add Population Management Button -->
+                            <a href="{{ path('web_animal_population_list', {'speciesId': animalData.animal.id}) }}"
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-bar-chart"></i> Manage Population
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <form method="post" action="{{ path('web_animal_update', {id: animalData.animal.id}) }}">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="commonName" class="form-label">Common Name *</label>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="commonName"
+                                           name="commonName"
+                                           required
+                                           value="{{ animalData.animal.commonName }}">
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="scientificName" class="form-label">Scientific Name *</label>
+                                    <input type="text"
+                                           class="form-control"
+                                           id="scientificName"
+                                           name="scientificName"
+                                           required
+                                           value="{{ animalData.animal.scientificName }}">
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="categoryId" class="form-label">Category *</label>
+                                    <select class="form-select" id="categoryId" name="categoryId" required>
+                                        {% for category in categories %}
+                                            <option value="{{ category.id }}"
+                                                    {% if category.id == animalData.animal.category.id %}selected{% endif %}>
+                                                {{ category.name }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label for="schedule" class="form-label">Schedule</label>
+                                    <select class="form-select" id="schedule" name="schedule">
+                                        <option value="">Select schedule...</option>
+                                        {% for value, label in schedules %}
+                                            <option value="{{ value }}">{{ label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input type="checkbox"
+                                       class="form-check-input"
+                                       id="active"
+                                       name="active"
+                                       value="1"
+                                       {% if animalData.animal.active %}checked{% endif %}>
+                                <label class="form-check-label" for="active">Active</label>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="{{ path('web_animal_list') }}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left"></i> Back to List
+                                </a>
+                                <div class="btn-group">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="bi bi-save"></i> Save Changes
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="h5 mb-0">
+                            <i class="bi bi-egg-fried"></i> Diet Items
+                            <small class="text-muted">({{ animalData.animal.dietItems|length }} items)</small>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div id="diet-items-container">
+                            {% if animalData.animal.dietItems|length > 0 %}
+                                <div class="table-responsive">
+                                    <table class="table table-sm">
+                                        <thead>
+                                        <tr>
+                                            <th>Feed Item</th>
+                                            <th>Quantity</th>
+                                            <th>Unit</th>
+                                            <th>Adult Count</th>
+                                            <th>Calculated For</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {% for dietItem in animalData.animal.dietItems %}
+                                            <tr>
+                                                <td>{{ dietItem.feedItem.name }}</td>
+                                                <td>{{ dietItem.quantity }}</td>
+                                                <td>{{ dietItem.feedItem.unit.name }}</td>
+                                                <td>{{ dietItem.adultCount }}</td>
+                                                <td>
+                                                    {% if dietItem.adultCount > 0 %}
+                                                        <span class="badge bg-info">{{ dietItem.adultCount }} adults</span>
+                                                    {% else %}
+                                                        <span class="badge bg-warning">No adults</span>
+                                                    {% endif %}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% else %}
+                                <p class="text-muted text-center py-3">No diet items configured.</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="mt-3">
+                            <a href="{{ path('web_diet_items_list', {'animalId': animalData.animal.id}) }}"
+                               class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-plus-circle"></i> Manage Diet Items
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <!-- Population Summary Card -->
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h3 class="h5 mb-0">
+                            <i class="bi bi-graph-up"></i> Population Summary
+                        </h3>
+                        <a href="{{ path('web_animal_population_create_form', {'speciesId': animalData.animal.id}) }}"
+                           class="btn btn-success btn-sm">
+                            <i class="bi bi-plus-circle"></i> Add Record
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <!-- Male/Female/Underage counts -->
+                        <div class="row text-center mb-3">
+                            <div class="col-4">
+                                <div class="display-6 text-primary">{{ animalData.maleCount }}</div>
+                                <small class="text-muted">Male</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="display-6 text-danger">{{ animalData.femaleCount }}</div>
+                                <small class="text-muted">Female</small>
+                            </div>
+                            <div class="col-4">
+                                <div class="display-6 text-secondary">{{ animalData.underageCount }}</div>
+                                <small class="text-muted">Underage</small>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <!-- Totals -->
+                        <div class="text-center mb-4">
+                            <div class="display-5 text-success">{{ animalData.totalCount }}</div>
+                            <small class="text-muted">Total Population</small>
+                        </div>
+
+                        <div class="text-center mb-3">
+                            <div class="h5">{{ animalData.adultCount }}</div>
+                            <small class="text-muted">Adult (Feed Eligible)</small>
+                        </div>
+
+                        <!-- Quick Actions -->
+                        <div class="d-grid gap-2">
+                            <a href="{{ path('web_animal_population_list', {'speciesId': animalData.animal.id}) }}"
+                               class="btn btn-outline-primary">
+                                <i class="bi bi-list"></i> View All Records
+                            </a>
+                            <a href="{{ path('web_animal_population_create_form', {'speciesId': animalData.animal.id}) }}"
+                               class="btn btn-outline-success">
+                                <i class="bi bi-plus-lg"></i> Add New Record
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Population Records Card -->
+                {% if animalData.recentPopulationRecords is defined and animalData.recentPopulationRecords|length > 0 %}
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3 class="h5 mb-0">
+                                <i class="bi bi-clock-history"></i> Recent Population Records
+                            </h3>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                {% for record in animalData.recentPopulationRecords %}
+                                    <a href="{{ path('web_animal_population_view', {'id': record.id}) }}"
+                                       class="list-group-item list-group-item-action">
+                                        <div class="d-flex w-100 justify-content-between">
+                                            <h6 class="mb-1">{{ record.recordedAt|date('M d, Y') }}</h6>
+                                            <small>{{ record.closing.male + record.closing.female }} total</small>
+                                        </div>
+                                        <p class="mb-1 small">
+                                            <span class="badge bg-primary">♂ {{ record.closing.male }}</span>
+                                            <span class="badge bg-danger">♀ {{ record.closing.female }}</span>
+                                            <span class="badge bg-secondary">{{ record.closing.underage ?? 0 }} underage</span>
+                                        </p>
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                <!-- Quick Info Card -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="h5 mb-0">
+                            <i class="bi bi-info-circle"></i> Quick Info
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-5">Created</dt>
+                            <dd class="col-sm-7">{{ animalData.animal.createdAt|date('Y-m-d H:i') }}</dd>
+
+                            <dt class="col-sm-5">Updated</dt>
+                            <dd class="col-sm-7">{{ animalData.animal.updatedAt|date('Y-m-d H:i') }}</dd>
+
+                            <dt class="col-sm-5">Category</dt>
+                            <dd class="col-sm-7">
+                                <span class="badge bg-info">{{ animalData.animal.category.name }}</span>
+                            </dd>
+
+                            <dt class="col-sm-5">Status</dt>
+                            <dd class="col-sm-7">
+                                {% if animalData.animal.active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </dd>
+
+                            {% if animalData.animal.schedule %}
+                                <dt class="col-sm-5">Schedule</dt>
+                                <dd class="col-sm-7">
+                                    <span class="badge bg-warning">{{ animalData.animal.schedule }}</span>
+                                </dd>
+                            {% endif %}
+
+                            <!-- Population Record Count -->
+                            <dt class="col-sm-5">Population Records</dt>
+                            <dd class="col-sm-7">
+                                {% if animalData.populationRecordCount is defined %}
+                                    <span class="badge bg-primary">{{ animalData.populationRecordCount }}</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">0</span>
+                                {% endif %}
+                            </dd>
+                        </dl>
+
+                        <!-- Quick Links -->
+                        <div class="mt-3 pt-3 border-top">
+                            <div class="d-grid gap-2">
+                                <a href="{{ path('web_animal_population_list', {'speciesId': animalData.animal.id}) }}"
+                                   class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-bar-chart"></i> Population Dashboard
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diet Modal -->
+
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+        document.getElementById('saveDietBtn').addEventListener('click', function() {
+            // This is a simplified version. You'd want to implement proper diet item editing
+            alert('Diet management would be implemented here with proper form handling.');
+        });
+    </script>
+{% endblock %}

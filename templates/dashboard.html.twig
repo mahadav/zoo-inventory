@@ -1,0 +1,201 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block page_title %}Dashboard{% endblock %}
+
+{% block body %}
+    <div class="container-fluid">
+        <!-- Stats Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title">Total Animals</h6>
+                                <h2 class="mb-0">{{ stats.total_animals }}</h2>
+                            </div>
+                            <i class="fas fa-paw fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title">Total Foods</h6>
+                                <h2 class="mb-0">{{ stats.total_foods }}</h2>
+                            </div>
+                            <i class="fas fa-apple-alt fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title">Categories</h6>
+                                <h2 class="mb-0">{{ stats.total_categories }}</h2>
+                            </div>
+                            <i class="fas fa-layer-group fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="card-title">Recent Feeds</h6>
+                                <h2 class="mb-0">{{ stats.recent_feeds }}</h2>
+                            </div>
+                            <i class="fas fa-utensils fa-3x opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Quick Actions</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <a href="{{ path('web_animal_create_form') }}" class="btn btn-outline-primary w-100">
+                                    <i class="fas fa-plus-circle me-2"></i>Add New Animal
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="{{ path('web_animal_list') }}" class="btn btn-outline-success w-100">
+                                    <i class="fas fa-paw me-2"></i>View All Animals
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="{{ path('feed_estimate_table') }}" class="btn btn-outline-info w-100">
+                                    <i class="fas fa-calculator me-2"></i>Feed Estimate
+                                </a>
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <a href="{{ path('supply_order_form') }}" class="btn btn-outline-warning w-100">
+                                    <i class="fas fa-file-invoice me-2"></i>Create Supply Order
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity & Summary -->
+        <div class="row">
+            <!-- Recent Animals -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Recent Animal Updates</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="list-group">
+                            <div class="list-group-item">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">No recent updates</h6>
+                                    <small>Just now</small>
+                                </div>
+                                <p class="mb-1">Add animals to see recent activity here.</p>
+                            </div>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ path('web_animal_list') }}" class="btn btn-sm btn-primary">
+                                View All Animals <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feed Summary -->
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Feed Summary</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Feed estimation tools and reports.</p>
+                        <div class="row">
+                            <div class="col-6">
+                                <div class="d-grid gap-2">
+                                    <a href="{{ path('feed_estimate_table') }}" class="btn btn-outline-primary">
+                                        <i class="fas fa-calendar-day me-2"></i>Day-wise Estimate
+                                    </a>
+                                    <a href="{{ path('web_estimate_yearly_view') }}" class="btn btn-outline-success">
+                                        <i class="fas fa-calendar-alt me-2"></i>Yearly Estimate
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="d-grid gap-2">
+                                    <a href="{{ path('select_animal_category') }}" class="btn btn-outline-info">
+                                        <i class="fas fa-filter me-2"></i>Select Category
+                                    </a>
+                                    <a href="{{ path('supply_order_form') }}" class="btn btn-outline-warning">
+                                        <i class="fas fa-file-invoice me-2"></i>Supply Order
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upcoming Tasks -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Upcoming Tasks</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-tasks text-primary me-2"></i>
+                                    <span>Update animal population records</span>
+                                </div>
+                                <a href="{{ path('web_animal_population_index') }}" class="btn btn-sm btn-outline-primary">Go</a>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-utensils text-success me-2"></i>
+                                    <span>Review animal diets</span>
+                                </div>
+                                <a href="{{ path('web_diet_animals') }}" class="btn btn-sm btn-outline-success">Go</a>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <i class="fas fa-calculator text-info me-2"></i>
+                                    <span>Generate monthly feed estimate</span>
+                                </div>
+                                <a href="{{ path('feed_estimate_table') }}" class="btn btn-sm btn-outline-info">Go</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

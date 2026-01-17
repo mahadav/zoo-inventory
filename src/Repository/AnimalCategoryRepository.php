@@ -21,5 +21,18 @@ class AnimalCategoryRepository extends ServiceEntityRepository
         parent::__construct($registry, AnimalCategory::class);
     }
 
+    public function findAnimalsByCategory(int $categoryId): array
+    {
+        return $this->createQueryBuilder('c')
+            ->select('c', 'a')
+            ->leftJoin('c.animals', 'a')
+            ->where('c.id = :categoryId')
+            ->setParameter('categoryId', $categoryId)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ?->getAnimals()
+            ->toArray() ?? [];
+    }
+
     // Add custom query helpers here when you need them.
 }

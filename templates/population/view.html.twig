@@ -1,0 +1,133 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Record - {{ record.species.commonName }} - {{ record.recordedAt|date('Y-m-d') }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1>Population Record</h1>
+                <p class="lead">
+                    {{ record.species.commonName }} on {{ record.recordedAt|date('F j, Y') }}
+                </p>
+            </div>
+            <div>
+                <a href="{{ path('web_animal_population_list', {'speciesId': record.species.id}) }}"
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to List
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Population Summary</h5>
+
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            {% set groups = {
+                                'Opening Balance': record.opening,
+                                'Births': record.births,
+                                'Acquisitions': record.acquisitions,
+                                'Deaths': record.deaths,
+                                'Disposals': record.disposals,
+                                'Closing Balance': record.closing
+                            } %}
+
+                            {% for label, group in groups %}
+                                <div class="col-md-6 col-lg-4 mb-3">
+                                    <div class="border rounded p-3 h-100">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="mb-0">{{ label }}</h6>
+                                            {% set groupTotal = group.male + group.female %}
+                                            {% if group.underage is defined %}
+                                                {% set groupTotal = groupTotal + group.underage %}
+                                            {% endif %}
+                                            <span class="badge bg-primary">{{ groupTotal }}</span>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-4">
+                                                <small class="text-muted d-block">Males</small>
+                                                <div class="h5 text-primary">{{ group.male }}</div>
+                                            </div>
+                                            <div class="col-4">
+                                                <small class="text-muted d-block">Females</small>
+                                                <div class="h5 text-danger">{{ group.female }}</div>
+                                            </div>
+                                            <div class="col-4">
+                                                <small class="text-muted d-block">U/Age</small>
+                                                <div class="h5 text-secondary">{{ group.underage is defined ? group.underage : 0 }}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Stats Card -->
+
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Record Details</h5>
+                    </div>
+                    <div class="card-body">
+                        <dl class="row">
+                            <dt class="col-sm-5">Species:</dt>
+                            <dd class="col-sm-7">{{ record.species.commonName }}</dd>
+
+                            <dt class="col-sm-5">Scientific Name:</dt>
+                            <dd class="col-sm-7">{{ record.species.scientificName|default('Not specified') }}</dd>
+
+                            <dt class="col-sm-5">Category:</dt>
+                            <dd class="col-sm-7">{{ record.species.category.name }}</dd>
+
+                            <dt class="col-sm-5">Schedule:</dt>
+                            <dd class="col-sm-7">{{ record.species.schedule|default('Not specified') }}</dd>
+
+                            <dt class="col-sm-5">Record Date:</dt>
+                            <dd class="col-sm-7">{{ record.recordedAt|date('Y-m-d') }}</dd>
+
+                            <dt class="col-sm-5">Created:</dt>
+                            <dd class="col-sm-7">{{ record.recordedAt|date('Y-m-d H:i') }}</dd>
+
+                            <dt class="col-sm-5">Status:</dt>
+                            <dd class="col-sm-7">
+                                {% if record.species.active %}
+                                    <span class="badge bg-success">Active</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </dd>
+
+                            <!-- Total Population in Details -->
+                            <dt class="col-sm-5">Total Population:</dt>
+                            <dd class="col-sm-7">
+                                {% set totalClosing = record.closing.male + record.closing.female %}
+                                {% if record.closing.underage is defined %}
+                                    {% set totalClosing = totalClosing + record.closing.underage %}
+                                {% endif %}
+                                <span class="badge bg-success fs-6">{{ totalClosing }}</span>
+                            </dd>
+                        </dl>
+                    </div>
+                    <div class="card-footer">
+                        <div class="d-grid gap-2">
+                            <a href="{{ path('web_animal_population_create_form', {'speciesId': record.species.id}) }}"
+                               class="btn btn-outline-primary">
+                                <i class="fas fa-plus"></i> New Record for Same Species
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

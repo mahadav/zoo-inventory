@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Animal Species - Diet Management{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Select Animal Species</h1>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+
+        <div class="row mt-4">
+            {% for animal in animals %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ animal.commonName }}</h5>
+                            <p class="card-text">
+                                {% if animal.scientificName %}
+                                    <small class="text-muted">{{ animal.scientificName }}</small><br>
+                                {% endif %}
+                                Category: {{ animal.category.name }}
+                            </p>
+                            <a href="{{ path('web_diet_items_list', {'animalId': animal.id}) }}"
+                               class="btn btn-primary">
+                                View Diet Items
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">No animal species found.</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

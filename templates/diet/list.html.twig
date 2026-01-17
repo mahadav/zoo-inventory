@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Diet Items - {{ animalId }}{% endblock %}
+
+{% block body %}
+    <div class="container mt-4">
+        <h1>Diet Items for Animal #{{ animalId }}</h1>
+
+        {% for message in app.flashes('success') %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+
+        {% for message in app.flashes('error') %}
+            <div class="alert alert-danger">{{ message }}</div>
+        {% endfor %}
+
+        <div class="d-flex justify-content-between mb-3">
+            <a href="{{ path('web_diet_animals') }}" class="btn btn-secondary">
+                ← Back to Animals
+            </a>
+            <a href="{{ path('web_diet_items_add_form', {'animalId': animalId}) }}"
+               class="btn btn-success">
+                + Add Diet Item
+            </a>
+        </div>
+
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Feed Item</th>
+                <th>Quantity</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in dietItems %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.feedItem.name }}</td>
+                    <td>{{ item.quantity }} {{ item.feedItem.unit.name }}</td>
+                    <td>
+                        <a href="{{ path('web_diet_item_edit_form', {'id': item.id}) }}"
+                           class="btn btn-sm btn-warning">Edit</a>
+                        <form method="post"
+                              action="{{ path('web_diet_item_delete', {'id': item.id}) }}"
+                              class="d-inline"
+                              onsubmit="return confirm('Are you sure you want to delete this item?');">
+                            <input type="hidden" name="animalId" value="{{ animalId }}">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5" class="text-center">No diet items found.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

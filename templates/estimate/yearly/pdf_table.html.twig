@@ -1,0 +1,221 @@
+{# templates/estimate/yearly/display_dompdf.html.twig #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+
+
+
+    <title>Monthly Feed Requirement & Cost - {{ data.year }}</title>
+    <style>
+        /* DOMPDF-friendly CSS:
+           - Avoid complex layout features (flex, shadows, rounded corners)
+           - Use table-layout:fixed and explicit widths for predictable rendering
+           - Add page-break rules
+        */
+        html, body {
+            margin: 0;
+            padding: 8px;
+            font-family: "DejaVu Sans", "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 12px;
+            color: #222;
+        }
+
+        .container {
+            width: 100%;
+            background: #ffffff;
+            padding: 12px;
+            /* Avoid box-shadow / border-radius for Dompdf */
+        }
+
+        h1 {
+            font-size: 16px;
+            margin: 0 0 6px 0;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 11px;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .table-container {
+            width: 100%;
+            /* Avoid overflow: auto (Dompdf handles wide tables by scaling when needed) */
+            margin-bottom: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* important for predictable column widths */
+            font-size: 11px;
+        }
+
+        thead th {
+            background: #2c3e50;
+            color: #ffffff;
+            font-weight: 600;
+            padding: 8px 6px;
+            border: 1px solid #2c3e50;
+            text-align: center;
+            vertical-align: middle;
+            word-wrap: break-word;
+        }
+
+        tbody td {
+            padding: 6px 5px;
+            border: 1px solid #e1e5eb;
+            text-align: center;
+            vertical-align: middle;
+            word-wrap: break-word;
+        }
+
+        tr:nth-child(even) td {
+            background: #f8f9fa;
+        }
+
+        /* Column classes with fixed widths (percentages chosen to fit 100%) */
+        .sl-column { width: 4%; font-weight: bold; text-align: center; }
+        .name-column { width: 18%; text-align: left; font-weight: 600; padding-left: 8px; }
+        .quantity-column { width: 8%; }
+        .month-column { width: 6%; }        /* repeated 12 times -> 72% allocated among them */
+        .annual-column { width: 8%; font-weight: 700; }
+        .rate-column { width: 7%; }
+        .total-column { width: 8%; font-weight: 700; }
+
+        /* Small labels inside header rendered as block with smaller font-size */
+        .month-header { display: block; }
+        .month-name { display: block; font-size: 11px; margin-bottom: 2px; }
+        .feeding-days {
+            display: inline-block;
+            font-size: 9px;
+            padding: 2px 4px;
+            border-radius: 3px;
+            background: #3498db;
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .currency { color: #27ae60; font-weight: 700; }
+
+        .grand-total-row td {
+            background: #2c3e50;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        /* Page break rules */
+        .avoid-break { page-break-inside: avoid; }
+        .page-break { page-break-after: always; }
+
+        /* Fallback: hide long overflow text */
+        td { overflow: hidden; }
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Monthly Feed Requirement & Cost Analysis</h1>
+    <div class="subtitle">Annual feed requirements with monthly breakdown and cost calculations — {{ data.year }}</div>
+
+    <div class="table-container avoid-break">
+        <table>
+            <thead>
+            <tr>
+                <th class="sl-column">SL No.</th>
+                <th class="name-column">Name of Feed</th>
+                <th class="quantity-column">Quantity per Day (kg)</th>
+
+                {# month headers dynamic with effective days #}
+                {% for m in 1..12 %}
+                    <th class="month-column">
+                        <div class="month-header">
+                            <span class="month-name">{{ data.months_info[m].month_name }}</span>
+                            <span class="feeding-days">{{ data.months_info[m].effective_days }} days</span>
+                        </div>
+                    </th>
+                {% endfor %}
+
+                <th class="annual-column">Annual Requirement (kg)</th>
+                <th class="rate-column">Rate per kg (₹)</th>
+                <th class="total-column">Total Amount per Year (₹)</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            {% set idx = 0 %}
+            {% for row in data.feed_items_table %}
+                {% set idx = idx + 1 %}
+                <tr class="avoid-break">
+                    <td class="sl-column">{{ idx }}</td>
+                    <td class="name-column">{{ row.name }}</td>
+                    <td class="quantity-column">
+                        {{ row.quantity_per_day is defined ? row.quantity_per_day|number_format(2, '.', ',') : '0.00' }}
+                    </td>
+
+                    {# monthly totals — show with 1 decimal like your example #}
+                    {% for m in 1..12 %}
+                        <td>{{ row.monthly_totals[m]|default(0)|number_format(1, '.', ',') }}</td>
+                    {% endfor %}
+
+                    <td class="annual-column">{{ row.year_total|number_format(0, '.', ',') }}</td>
+
+                    <td class="rate-column">
+                        {% if row.rate_per_kg is defined and row.rate_per_kg > 0 %}
+                            {{ row.rate_per_kg|number_format(0, '.', ',') }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+
+                    <td class="total-column currency">
+                        {% if row.annual_cost is defined and row.annual_cost > 0 %}
+                            ₹{{ row.annual_cost|number_format(0, '.', ',') }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="18" style="text-align:center; padding:12px;">No feed items found for this category.</td>
+                </tr>
+            {% endfor %}
+
+            {# Grand Total Row #}
+            <tr class="grand-total-row avoid-break">
+                <td colspan="3" style="text-align:left; padding-left:8px;">GRAND TOTAL</td>
+
+                {# monthly grand totals — 1 decimal like examples #}
+                {% for m in 1..12 %}
+                    <td>{{ data.monthly_grand_totals[m]|default(0)|number_format(1, '.', ',') }}</td>
+                {% endfor %}
+
+                <td>{{ data.monthly_grand_totals.year_total|default(0)|number_format(0, '.', ',') }} kg</td>
+                <td>-</td>
+                <td class="currency">
+                    {% if data.total_annual_cost is defined %}
+                        ₹{{ data.total_annual_cost|number_format(0, '.', ',') }}
+                    {% else %}
+                        {% set grandMoney = 0 %}
+                        {% for row in data.feed_items_table %}
+                            {% set grandMoney = grandMoney + (row.annual_cost|default(0)) %}
+                        {% endfor %}
+                        ₹{{ grandMoney|number_format(0, '.', ',') }}
+                    {% endif %}
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div style="font-size:10px; color:#555; margin-top:8px;">
+        <strong>Note:</strong> Monthly quantities are calculated as (Quantity per Day × Feeding Days per Month). Annual total is the sum of all monthly quantities.<br>
+        Total amount per year = Annual Requirement (kg) × Rate per kg (₹)
+    </div>
+</div>
+</body>
+</html>

@@ -27,6 +27,11 @@ class FeedItem implements \JsonSerializable
     #[ORM\JoinColumn(nullable: false)]
     private FeedCategory $category;
 
+
+    #[ORM\ManyToOne(targetEntity: AnimalCategory::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private AnimalCategory $animalCategory;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -73,6 +78,17 @@ class FeedItem implements \JsonSerializable
     public function setCategory(FeedCategory $category): self
     {
         $this->category = $category;
+        return $this;
+    }
+
+    public function getAnimalCategory(): AnimalCategory
+    {
+        return $this->animalCategory;
+    }
+
+    public function setAnimalCategory(AnimalCategory $animalCategory): self
+    {
+        $this->animalCategory = $animalCategory;
         return $this;
     }
 

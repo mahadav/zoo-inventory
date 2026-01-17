@@ -1,0 +1,80 @@
+{# templates/estimate/feed_estimate_pdf.html.twig #}
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Feed Estimate - {{ category.name }} - {{ days_info.month_name }} {{ year }}</title>
+    <style>
+        body { font-family: DejaVu Sans, Arial, Helvetica, sans-serif; font-size:12px; color:#222; margin:20px; }
+        h1 { text-align:center; font-size:16px; margin-bottom:6px; }
+        .meta { text-align:center; font-size:11px; margin-bottom:10px; color:#444; }
+        table { width:100%; border-collapse:collapse; margin-top:12px; }
+        th, td { border:1px solid #999; padding:6px 8px; text-align:center; vertical-align:middle; }
+        th { background:#f0f0f0; font-weight:600; }
+        td.left { text-align:left; }
+        .small { font-size:11px; color:#333; }
+        .right { text-align:right; }
+        .totals { font-weight:700; background:#f7f7f7; }
+    </style>
+</head>
+<body>
+<h1>Animal Daily Diet Requirements — {{ category.name }}</h1>
+<div class="meta">
+    Period: <strong>{{ days_info.month_name }} {{ year }}</strong> —
+    Total Days: <strong>{{ days_info.total_days }}</strong>,
+    Feeding Days: <strong>{{ days_info.feeding_days }}</strong>,
+    Fasting Days: <strong>{{ days_info.fasting_days }}</strong>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th rowspan="2">SL No</th>
+        <th rowspan="2">Feed Items</th>
+        {% for animal in animals %}
+            <th colspan="2">{{ animal.name }}<br/><span class="small">{{ animal.quantity }} {{ animal.quantity > 1 ? 'animals' : 'animal' }}</span></th>
+        {% endfor %}
+        <th rowspan="2">Total / Day</th>
+    </tr>
+    <tr>
+        {% for animal in animals %}
+            <th>Diet / Day</th>
+            <th>Total / Day</th>
+        {% endfor %}
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for feed_item in feed_items %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td class="left">{{ feed_item.name }}</td>
+
+            {% for animal in animals %}
+                {% set diet = feed_item.diets[animal.id] ?? {'per_animal': 0, 'required_for_quantity': 0} %}
+                <td>{{ diet.per_animal ? diet.per_animal|number_format(2) ~ ' ' ~ (feed_item.unit ?: '') : '-' }}</td>
+                <td>{{ diet.required_for_quantity ? diet.required_for_quantity|number_format(2) ~ ' ' ~ (feed_item.unit ?: '') : '-' }}</td>
+            {% endfor %}
+
+            <td class="right">{{ feed_item.daily_total ? feed_item.daily_total|number_format(2) ~ ' ' ~ (feed_item.unit ?: '') : '-' }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+
+    <tfoot>
+    <tr class="totals">
+        <td colspan="2">Totals</td>
+        {% for animal in animals %}
+            <td></td>
+            <td>{{ column_totals[animal.id] is defined and column_totals[animal.id] ? column_totals[animal.id]|number_format(2) ~ ' ' : '-' }}</td>
+        {% endfor %}
+        <td class="right">{{ grand_total|number_format(2) }}</td>
+    </tr>
+    </tfoot>
+</table>
+
+<div style="margin-top:18px; font-size:11px; color:#333;">
+    Generated on {{ "now"|date("d-m-Y H:i") }}.
+</div>
+</body>
+</html>

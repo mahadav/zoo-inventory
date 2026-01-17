@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Animal Stock Register</title>
+
+    <style>
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 9px;
+            margin: 10px;
+        }
+
+        h3, p {
+            text-align: center;
+            margin: 4px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #000;
+            padding: 3px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        th {
+            font-weight: bold;
+        }
+
+        .text-left {
+            text-align: left;
+        }
+
+        .category-row {
+            font-weight: bold;
+            background: #eeeeee;
+        }
+
+        .total-row {
+            font-weight: bold;
+            background: #dddddd;
+        }
+
+        tr {
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+<body>
+
+<h3>Animal Stock Register</h3>
+<p>Period: <strong>{{ from_label }}</strong> to <strong>{{ to_label }}</strong></p>
+
+<table>
+    <thead>
+    <tr>
+        <th rowspan="3">S.No</th>
+        <th rowspan="3">Animal Name</th>
+        <th rowspan="3">Scientific Name</th>
+        <th rowspan="3">Schedule</th>
+
+        <th colspan="4">Opening</th>
+        <th colspan="4">Births</th>
+        <th colspan="4">Acquisitions</th>
+        <th colspan="4">Disposals</th>
+        <th colspan="4">Deaths</th>
+        <th colspan="4">Closing</th>
+    </tr>
+
+    <tr>
+        {% for i in 1..6 %}
+            <th colspan="4"></th>
+        {% endfor %}
+    </tr>
+
+    <tr>
+        {% for i in 1..6 %}
+            <th>M</th><th>F</th><th>U</th><th>T</th>
+        {% endfor %}
+    </tr>
+    </thead>
+
+    <tbody>
+    {% for categoryName, category in categories %}
+        <tr class="category-row">
+            <td colspan="28" class="text-left">
+                {{ loop.index }}. {{ categoryName }}
+            </td>
+        </tr>
+
+        {% for row in category.rows %}
+            <tr>
+                <td>{{ row.sl }}</td>
+                <td class="text-left">{{ row.name }}</td>
+                <td class="text-left">{{ row.scientific }}</td>
+                <td>{{ row.schedule }}</td>
+
+                {% for section in ['opening','births','acquisitions','disposals','deaths','closing'] %}
+                    <td>{{ attribute(row, section).m }}</td>
+                    <td>{{ attribute(row, section).f }}</td>
+                    <td>{{ attribute(row, section).u }}</td>
+                    <td>{{ attribute(row, section).t }}</td>
+                {% endfor %}
+            </tr>
+        {% endfor %}
+
+        <tr class="total-row">
+            <td colspan="4" class="text-left">Total {{ categoryName }}</td>
+
+            {% for section in ['opening','births','acquisitions','disposals','deaths','closing'] %}
+                <td>{{ attribute(category.total, section).m }}</td>
+                <td>{{ attribute(category.total, section).f }}</td>
+                <td>{{ attribute(category.total, section).u }}</td>
+                <td>{{ attribute(category.total, section).t }}</td>
+            {% endfor %}
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+</body>
+</html>
