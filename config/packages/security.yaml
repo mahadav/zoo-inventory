@@ -30,4 +30,6 @@ security:
         - { path: ^/change-password, roles: ROLE_ADMIN }         # protected
         - { path: ^/dashboard, roles: ROLE_ADMIN }               # protected
         - { path: ^/home, roles: ROLE_ADMIN }                    # post-login dashboard
+        - { path: ^/web, roles: ROLE_ADMIN }
+
 

@@ -12,7 +12,8 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 
-//api endpoint /estimate/supply-order/form?month=3&year=2024&fastingDay=0
+#[Route('/web/estimate')]
+
 class EstimateControllerWeb extends AbstractController
 {
     private EstimateService $estimateService;
